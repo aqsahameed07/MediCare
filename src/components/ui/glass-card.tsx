@@ -18,7 +18,7 @@ export function GlassCard({
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={hover ? { y: -4 } : undefined}
+      whileHover={hover ? { y: -4 } : {}}
       className={cn("glass rounded-2xl p-5", hover && "hover:shadow-elegant", className)}
     >
       {children}
