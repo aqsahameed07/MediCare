@@ -56,7 +56,7 @@ export function DashboardShell({
           return (
             <Link
               key={item.to}
-              to={item.to}
+              to={item.to as "/"}
               onClick={() => setOpen(false)}
               className={cn(
                 "relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-300",
