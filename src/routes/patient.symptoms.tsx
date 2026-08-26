@@ -34,7 +34,7 @@ export const Route = createFileRoute("/patient/symptoms")({
       },
     ],
   }),
-  component: SymptomChecker;
+  component: SymptomChecker,
 });
 
 function severityTone(s: string) {
