@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 const links = [
   { label: "Platform", to: "/#features" },
   { label: "AI Care", to: "/#ai" },
+  { label: "Sign in", to: "/auth" },
   { label: "Patient", to: "/patient" },
   { label: "Doctor", to: "/doctor" },
   { label: "Admin", to: "/admin" },
