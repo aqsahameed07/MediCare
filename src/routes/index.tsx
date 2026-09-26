@@ -76,19 +76,19 @@ const features = [
 const roles = [
   {
     title: "Patient",
-    to: "/patient" as const,
+    to: "/auth?role=patient",
     icon: HeartPulse,
     body: "Symptom checker, AI doctor recommendations, bookings, prescriptions and health timeline.",
   },
   {
     title: "Doctor",
-    to: "/doctor" as const,
+    to: "/auth?role=doctor",
     icon: Stethoscope,
     body: "Appointment kanban, patient records, weekly schedule and consultation performance.",
   },
   {
     title: "Admin",
-    to: "/admin" as const,
+    to: "/auth?role=admin",
     icon: Users,
     body: "Platform-wide metrics, user management and revenue & specialty analytics.",
   },
@@ -139,12 +139,12 @@ function Landing() {
               className="mt-8 flex flex-wrap gap-3"
             >
               <Button asChild size="lg" className="hover-lift rounded-xl">
-                <Link to="/patient/symptoms">
+                <Link to="/auth" search={{ role: "patient" }}>
                   Try the AI checker <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="rounded-xl">
-                <Link to="/doctor">View doctor console</Link>
+                <Link to="/auth" search={{ role: "doctor" }}>View doctor console</Link>
               </Button>
             </motion.div>
 

@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
-import { Activity, Bell, Menu, Search, X } from "lucide-react";
+import { Activity, Bell, LogOut, Menu, Search, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { PageTransition } from "@/components/motion/reveal";
 import { notifications } from "@/lib/mock-data";
+import { signOut } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 export interface NavItem {
@@ -35,8 +36,14 @@ export function DashboardShell({
   children: ReactNode;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [unread, setUnread] = useState(notifications.filter((n) => !n.read).length);
+
+  const handleSignOut = () => {
+    signOut();
+    navigate({ to: "/auth" });
+  };
 
   const sidebar = (
     <div className="flex h-full flex-col gap-6 p-4">
@@ -181,8 +188,13 @@ export function DashboardShell({
                   </PopoverContent>
                 </Popover>
                 <ThemeToggle />
-                <Button asChild size="sm" variant="outline" className="hidden rounded-xl sm:inline-flex">
-                  <Link to="/">Exit</Link>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="hidden rounded-xl sm:inline-flex"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="mr-1 h-4 w-4" /> Sign out
                 </Button>
               </div>
             </div>
