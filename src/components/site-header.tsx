@@ -9,9 +9,6 @@ const links = [
   { label: "Platform", to: "/#features" },
   { label: "AI Care", to: "/#ai" },
   { label: "Sign in", to: "/auth" },
-  { label: "Patient", to: "/patient" },
-  { label: "Doctor", to: "/doctor" },
-  { label: "Admin", to: "/admin" },
 ];
 
 export function SiteHeader() {
@@ -59,7 +56,7 @@ export function SiteHeader() {
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <Button asChild size="sm" className="hidden rounded-xl sm:inline-flex">
-              <Link to="/patient">Open dashboard</Link>
+              <Link to="/auth" search={{ role: "patient" }}>Sign in</Link>
             </Button>
             <button
               type="button"

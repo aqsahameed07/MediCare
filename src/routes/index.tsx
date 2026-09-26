@@ -76,19 +76,19 @@ const features = [
 const roles = [
   {
     title: "Patient",
-    to: "/patient" as const,
+    to: "/auth?role=patient",
     icon: HeartPulse,
     body: "Symptom checker, AI doctor recommendations, bookings, prescriptions and health timeline.",
   },
   {
     title: "Doctor",
-    to: "/doctor" as const,
+    to: "/auth?role=doctor",
     icon: Stethoscope,
     body: "Appointment kanban, patient records, weekly schedule and consultation performance.",
   },
   {
     title: "Admin",
-    to: "/admin" as const,
+    to: "/auth?role=admin",
     icon: Users,
     body: "Platform-wide metrics, user management and revenue & specialty analytics.",
   },
@@ -139,12 +139,12 @@ function Landing() {
               className="mt-8 flex flex-wrap gap-3"
             >
               <Button asChild size="lg" className="hover-lift rounded-xl">
-                <Link to="/patient/symptoms">
+                <Link to="/auth" search={{ role: "patient" }}>
                   Try the AI checker <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="rounded-xl">
-                <Link to="/doctor">View doctor console</Link>
+                <Link to="/auth" search={{ role: "doctor" }}>View doctor console</Link>
               </Button>
             </motion.div>
 
@@ -247,7 +247,7 @@ function Landing() {
               ))}
             </ul>
             <Button asChild className="mt-8 rounded-xl">
-              <Link to="/patient/symptoms">
+              <Link to="/auth" search={{ role: "patient" }}>
                 Run an assessment <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </Button>
@@ -255,9 +255,9 @@ function Landing() {
 
           <ScrollReveal stagger className="grid gap-4">
             {roles.map((r) => (
-              <Link
+              <a
                 key={r.title}
-                to={r.to}
+                href={r.to}
                 className="glass hover-lift group flex items-start gap-4 rounded-2xl p-5"
               >
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary">
@@ -268,7 +268,7 @@ function Landing() {
                   <p className="mt-1 text-sm text-muted-foreground">{r.body}</p>
                 </div>
                 <ArrowRight className="ml-auto mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1" />
-              </Link>
+              </a>
             ))}
           </ScrollReveal>
         </div>
@@ -311,10 +311,10 @@ function Landing() {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Button asChild size="lg" variant="secondary" className="rounded-xl">
-              <Link to="/patient">Patient workspace</Link>
+              <Link to="/auth" search={{ role: "patient" }}>Patient workspace</Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="rounded-xl border-white/40 bg-transparent">
-              <Link to="/admin">Admin analytics</Link>
+              <Link to="/auth" search={{ role: "admin" }}>Admin analytics</Link>
             </Button>
           </div>
         </ScrollReveal>
