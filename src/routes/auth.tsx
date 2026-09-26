@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { Activity, ArrowRight, HeartPulse, Lock, Mail, Stethoscope, User } from "lucide-react";
+import { Activity, ArrowRight, HeartPulse, Lock, Mail, ShieldCheck, Stethoscope, User } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,46 +9,83 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Toaster } from "@/components/ui/sonner";
 import { currentDoctor, currentPatient } from "@/lib/mock-data";
+import { dashboardPath, getSession, signIn, type DemoRole } from "@/lib/auth";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    role: (["patient", "doctor", "admin"].includes(search.role as string)
+      ? search.role
+      : "patient") as DemoRole,
+  }),
   head: () => ({
     meta: [
       { title: "Sign in or create an account — MediAI Care" },
       {
         name: "description",
         content:
-          "Access MediAI Care as a patient or doctor. Demo sign in and sign up with prefilled dummy credentials.",
+          "Access MediAI Care as a patient, doctor or clinic admin. Demo sign in and sign up with prefilled dummy credentials.",
       },
       { property: "og:title", content: "Sign in — MediAI Care" },
       {
         property: "og:description",
-        content: "Patient and doctor access to the MediAI Care platform.",
+        content: "Patient, doctor and admin access to the MediAI Care platform.",
       },
     ],
   }),
   component: AuthPage,
 });
 
-type Persona = "patient" | "doctor";
+const personas: Record<
+  DemoRole,
+  { label: string; icon: typeof HeartPulse; name: string; email: string; blurb: string }
+> = {
+  patient: {
+    label: "Patient",
+    icon: HeartPulse,
+    name: currentPatient.name,
+    email: currentPatient.email,
+    blurb: "Symptom checker, appointments, prescriptions, history",
+  },
+  doctor: {
+    label: "Doctor",
+    icon: Stethoscope,
+    name: currentDoctor.name,
+    email: "dr.sarah@mediai.care",
+    blurb: "Appointment kanban, patient EMR, weekly schedule",
+  },
+  admin: {
+    label: "Admin",
+    icon: ShieldCheck,
+    name: "Ayesha Khan",
+    email: "admin@mediai.care",
+    blurb: "Platform analytics, user management, revenue insights",
+  },
+};
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [persona, setPersona] = useState<Persona>("patient");
+  const { role } = Route.useSearch();
+  const [persona, setPersona] = useState<DemoRole>(role);
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [pending, setPending] = useState(false);
 
-  const demoEmail = persona === "patient" ? currentPatient.email : "dr.sarah@mediai.care";
+  const existing = getSession();
+  const active = personas[persona];
 
-  const submit = (e: React.FormEvent) => {
+  const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    const name = (form.get("name") as string) || active.name;
+    const email = (form.get("email") as string) || active.email;
     setPending(true);
     setTimeout(() => {
+      signIn({ role: persona, name, email });
       setPending(false);
       toast.success(
         mode === "signin" ? "Signed in to the demo workspace" : "Demo account created",
-        { description: `Continuing as ${persona === "patient" ? currentPatient.name : currentDoctor.name}` },
+        { description: `Continuing as ${name} (${active.label})` },
       );
-      navigate({ to: persona === "patient" ? "/patient" : "/doctor" });
+      navigate({ to: dashboardPath(persona) });
     }, 900);
   };
 
@@ -76,23 +113,31 @@ function AuthPage() {
           </h1>
           <p className="mt-4 max-w-md text-muted-foreground">
             Patients get AI triage, bookings and records. Doctors get schedules, patient charts and
-            consultation analytics. This is a demo — no real credentials required.
+            consultation analytics. Admins run the whole clinic. This is a demo — no real
+            credentials required.
           </p>
           <div className="mt-8 space-y-3">
-            {[
-              { icon: HeartPulse, t: "Patients", d: "Symptom checker, appointments, prescriptions, history" },
-              { icon: Stethoscope, t: "Doctors", d: "Appointment kanban, patient EMR, weekly schedule" },
-            ].map((r) => (
-              <div key={r.t} className="glass flex items-start gap-3 rounded-2xl p-4">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/12 text-primary">
-                  <r.icon className="h-5 w-5" />
-                </span>
-                <div>
-                  <p className="text-sm font-medium">{r.t}</p>
-                  <p className="text-xs text-muted-foreground">{r.d}</p>
-                </div>
-              </div>
-            ))}
+            {(Object.keys(personas) as DemoRole[]).map((key) => {
+              const p = personas[key];
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setPersona(key)}
+                  className={`glass flex w-full items-start gap-3 rounded-2xl p-4 text-left transition-all duration-300 ${
+                    persona === key ? "ring-2 ring-primary/60" : "hover:translate-x-1"
+                  }`}
+                >
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/12 text-primary">
+                    <p.icon className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="text-sm font-medium">{p.label}s</p>
+                    <p className="text-xs text-muted-foreground">{p.blurb}</p>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </motion.div>
 
@@ -102,13 +147,30 @@ function AuthPage() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="glass shadow-elegant rounded-[1.75rem] p-6 sm:p-8"
         >
-          <Tabs value={persona} onValueChange={(v) => setPersona(v as Persona)}>
-            <TabsList className="grid w-full grid-cols-2 rounded-xl">
+          {existing && (
+            <div className="mb-4 flex items-center justify-between rounded-xl bg-primary/10 px-4 py-2.5 text-xs">
+              <span className="text-muted-foreground">
+                Signed in as <span className="font-medium text-foreground">{existing.name}</span>
+              </span>
+              <Link
+                to={dashboardPath(existing.role)}
+                className="font-medium text-primary hover:underline"
+              >
+                Open dashboard
+              </Link>
+            </div>
+          )}
+
+          <Tabs value={persona} onValueChange={(v) => setPersona(v as DemoRole)}>
+            <TabsList className="grid w-full grid-cols-3 rounded-xl">
               <TabsTrigger value="patient" className="rounded-lg">
                 <HeartPulse className="mr-1.5 h-4 w-4" /> Patient
               </TabsTrigger>
               <TabsTrigger value="doctor" className="rounded-lg">
                 <Stethoscope className="mr-1.5 h-4 w-4" /> Doctor
+              </TabsTrigger>
+              <TabsTrigger value="admin" className="rounded-lg">
+                <ShieldCheck className="mr-1.5 h-4 w-4" /> Admin
               </TabsTrigger>
             </TabsList>
 
@@ -150,10 +212,12 @@ function AuthPage() {
                         <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                           id="name"
+                          name="name"
                           required
                           className="rounded-xl pl-9"
-                          placeholder={persona === "patient" ? currentPatient.name : currentDoctor.name}
-                          defaultValue={persona === "patient" ? currentPatient.name : currentDoctor.name}
+                          placeholder={active.name}
+                          defaultValue={active.name}
+                          key={`name-${persona}`}
                         />
                       </div>
                     </motion.div>
@@ -166,11 +230,12 @@ function AuthPage() {
                     <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       id="email"
+                      name="email"
                       type="email"
                       required
                       className="rounded-xl pl-9"
-                      defaultValue={demoEmail}
-                      key={demoEmail}
+                      defaultValue={active.email}
+                      key={`email-${persona}`}
                     />
                   </div>
                 </div>
@@ -181,6 +246,7 @@ function AuthPage() {
                     <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       id="password"
+                      name="password"
                       type="password"
                       required
                       className="rounded-xl pl-9"
@@ -190,18 +256,15 @@ function AuthPage() {
                 </div>
 
                 <Button type="submit" size="lg" className="hover-lift w-full rounded-xl" disabled={pending}>
-                  {pending ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
+                  {pending
+                    ? "Please wait…"
+                    : `${mode === "signin" ? "Sign in" : "Create account"} as ${active.label}`}
                   {!pending && <ArrowRight className="ml-1 h-4 w-4" />}
                 </Button>
               </form>
 
               <p className="mt-4 text-center text-xs text-muted-foreground">
                 Demo experience with dummy data — credentials are prefilled and never sent anywhere.
-              </p>
-              <p className="mt-3 text-center text-xs">
-                <Link to="/admin" className="text-primary hover:underline">
-                  Continue as clinic admin
-                </Link>
               </p>
             </TabsContent>
           </Tabs>
