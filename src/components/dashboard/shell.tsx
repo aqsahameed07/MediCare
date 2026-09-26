@@ -42,7 +42,7 @@ export function DashboardShell({
 
   const handleSignOut = () => {
     signOut();
-    navigate({ to: "/auth" });
+    navigate({ to: "/auth", search: { role: "patient" } });
   };
 
   const sidebar = (

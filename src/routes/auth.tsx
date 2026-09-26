@@ -13,8 +13,8 @@ import { dashboardPath, getSession, signIn, type DemoRole } from "@/lib/auth";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (search: Record<string, unknown>) => ({
-    role: (["patient", "doctor", "admin"].includes(search.role as string)
-      ? search.role
+    role: (["patient", "doctor", "admin"].includes(search["role"] as string)
+      ? search["role"]
       : "patient") as DemoRole,
   }),
   head: () => ({
