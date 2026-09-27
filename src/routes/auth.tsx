@@ -71,6 +71,8 @@ function AuthPage() {
 
   const existing = getSession();
   const active = personas[persona];
+  const canSignUp = persona === "patient";
+  const effectiveMode = canSignUp ? mode : "signin";
 
   const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -82,7 +84,7 @@ function AuthPage() {
       signIn({ role: persona, name, email });
       setPending(false);
       toast.success(
-        mode === "signin" ? "Signed in to the demo workspace" : "Demo account created",
+        effectiveMode === "signin" ? "Signed in to the demo workspace" : "Demo account created",
         { description: `Continuing as ${name} (${active.label})` },
       );
       navigate({ to: dashboardPath(persona) });
@@ -175,6 +177,7 @@ function AuthPage() {
             </TabsList>
 
             <TabsContent value={persona} forceMount>
+              {canSignUp ? (
               <div className="mt-6 flex rounded-xl bg-muted/60 p-1 text-sm">
                 {(["signin", "signup"] as const).map((m) => (
                   <button
@@ -196,10 +199,17 @@ function AuthPage() {
                   </button>
                 ))}
               </div>
+              ) : (
+                <p className="mt-6 rounded-xl bg-muted/60 px-4 py-3 text-xs text-muted-foreground">
+                  {persona === "doctor"
+                    ? "Doctor accounts are created by an administrator. Sign in with the credentials you were given."
+                    : "Admin access is invite-only. Sign in with your admin credentials."}
+                </p>
+              )}
 
               <form onSubmit={submit} className="mt-6 space-y-4">
                 <AnimatePresence mode="popLayout" initial={false}>
-                  {mode === "signup" && (
+                  {effectiveMode === "signup" && (
                     <motion.div
                       key="name"
                       initial={{ opacity: 0, height: 0 }}
