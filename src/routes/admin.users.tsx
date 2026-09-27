@@ -91,7 +91,7 @@ function UsersPage() {
   const savePatient = () => {
     if (!editP) return;
     const d = editP.data;
-    if (!d.name.trim() || !d.email.trim()) return toast.error("Name and email are required");
+    if (!d.name.trim() || !d.email.trim()) { toast.error("Name and email are required"); return; }
     setPatients((l) => (editP.mode === "add" ? [d, ...l] : l.map((x) => (x.id === d.id ? d : x))));
     toast.success(editP.mode === "add" ? "Patient added" : "Patient updated", { description: d.name });
     setEditP(null);
@@ -100,7 +100,7 @@ function UsersPage() {
   const saveDoctor = () => {
     if (!editD) return;
     const d = editD.data;
-    if (!d.name.trim() || !d.hospital.trim()) return toast.error("Name and hospital are required");
+    if (!d.name.trim() || !d.hospital.trim()) { toast.error("Name and hospital are required"); return; }
     setDoctors((l) => (editD.mode === "add" ? [d, ...l] : l.map((x) => (x.id === d.id ? d : x))));
     toast.success(editD.mode === "add" ? "Doctor account created" : "Doctor updated", {
       description: editD.mode === "add" ? `${d.name} can now sign in` : d.name,
