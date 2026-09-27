@@ -268,7 +268,7 @@ function AuthPage() {
                 <Button type="submit" size="lg" className="hover-lift w-full rounded-xl" disabled={pending}>
                   {pending
                     ? "Please wait…"
-                    : `${mode === "signin" ? "Sign in" : "Create account"} as ${active.label}`}
+                    : `${effectiveMode === "signin" ? "Sign in" : "Create account"} as ${active.label}`}
                   {!pending && <ArrowRight className="ml-1 h-4 w-4" />}
                 </Button>
               </form>
